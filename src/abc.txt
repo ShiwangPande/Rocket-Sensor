@@ -11,25 +11,6 @@ import { playAlertSound } from './assets/alertSound';
 // Register ChartJS components
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale);
 
-const loadFromLocalStorage = () => {
-  const savedData = localStorage.getItem('sensorDataHistory');
-  return savedData ? JSON.parse(savedData) : {
-    dhtTemp: [],
-    humidity: [],
-    temperature: [],
-    pressure: [],
-    altitude: [],
-    accelX: [],
-    accelY: [],
-    accelZ: [],
-    labels: [],
-  };
-};
-
-const saveToLocalStorage = (dataHistory) => {
-  localStorage.setItem('sensorDataHistory', JSON.stringify(dataHistory));
-};
-
 const exportAllChartsAsPDF = async (chartRefs) => {
   const pdf = new jsPDF();
   let isFirstPage = true;
@@ -58,19 +39,32 @@ const App = () => {
     dhtTemp: null,
     humidity: null,
     temperature: null,
+    combinedTemp: null,
     pressure: null,
     altitude: null,
     accelX: null,
     accelY: null,
     accelZ: null,
   });
-  const [dataHistory, setDataHistory] = useState(loadFromLocalStorage());
+  const [dataHistory, setDataHistory] = useState({
+    dhtTemp: [],
+    humidity: [],
+    temperature: [],
+    combinedTemp: [],
+    pressure: [],
+    altitude: [],
+    accelX: [],
+    accelY: [],
+    accelZ: [],
+    labels: [],
+  });
   const [loading, setLoading] = useState(true);
 
   const chartRefs = {
     dhtTemp: useRef(null),
     humidity: useRef(null),
     temperature: useRef(null),
+    combinedTemp: useRef(null),
     pressure: useRef(null),
     altitude: useRef(null),
     accelX: useRef(null),
@@ -89,19 +83,18 @@ const App = () => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setSensorData(data);
-      const newDataHistory = {
-        dhtTemp: [...dataHistory.dhtTemp, data.dhtTemp],
-        humidity: [...dataHistory.humidity, data.humidity],
-        temperature: [...dataHistory.temperature, data.temperature],
-        pressure: [...dataHistory.pressure, data.pressure],
-        altitude: [...dataHistory.altitude, data.altitude],
-        accelX: [...dataHistory.accelX, data.accelX],
-        accelY: [...dataHistory.accelY, data.accelY],
-        accelZ: [...dataHistory.accelZ, data.accelZ],
-        labels: [...dataHistory.labels, new Date().toLocaleTimeString()],
-      };
-      setDataHistory(newDataHistory);
-      saveToLocalStorage(newDataHistory);
+      setDataHistory(prev => ({
+        dhtTemp: [...prev.dhtTemp, data.dhtTemp],
+        humidity: [...prev.humidity, data.humidity],
+        temperature: [...prev.temperature, data.temperature],
+        combinedTemp: [...prev.combinedTemp, data.combinedTemp],
+        pressure: [...prev.pressure, data.pressure],
+        altitude: [...prev.altitude, data.altitude],
+        accelX: [...prev.accelX, data.accelX],
+        accelY: [...prev.accelY, data.accelY],
+        accelZ: [...prev.accelZ, data.accelZ],
+        labels: [...prev.labels, new Date().toLocaleTimeString()],
+      }));
 
       // Play sound and show notification if temperature exceeds threshold
       if (data.temperature > 37) { // Adjust threshold as needed
@@ -122,7 +115,7 @@ const App = () => {
     return () => {
       ws.close();
     };
-  }, [dataHistory]);
+  }, []);
 
   const createChartData = (label, data) => ({
     labels: dataHistory.labels,
@@ -136,7 +129,7 @@ const App = () => {
         tension: 0.4,
         pointBackgroundColor: '#fff',
         pointBorderColor: '#FF6347', // Rocket Red
-        pointRadius: 3,
+        pointRadius: 2,
       },
     ],
   });
@@ -146,11 +139,11 @@ const App = () => {
     for (let i = 0; i < numStars; i++) {
       const top = Math.random() * 100;
       const left = Math.random() * 100;
-      const size = Math.random() * 3 + 1; // Size between 1 and 4px
+      const size = Math.random() * 2 + 1; // Size between 1 and 3px
       stars.push(
         <div
           key={i}
-          className="absolute bg-white rounded-full"
+          className="star"
           style={{ top: `${top}%`, left: `${left}%`, width: `${size}px`, height: `${size}px` }}
         />
       );
@@ -158,29 +151,13 @@ const App = () => {
     return stars;
   };
 
-  const resetData = () => {
-    const emptyData = {
-      dhtTemp: [],
-      humidity: [],
-      temperature: [],
-      pressure: [],
-      altitude: [],
-      accelX: [],
-      accelY: [],
-      accelZ: [],
-      labels: [],
-    };
-    setDataHistory(emptyData);
-    saveToLocalStorage(emptyData);
-  };
-
   return (
-    <div className="bg-gradient-to-r from-black via-gray-900 to-gray-800 p-8 min-h-screen relative overflow-hidden">
-      <div className="absolute inset-0">{generateStars(200)}</div> {/* Increased number of stars */}
+    <div className="bg-gradient-to-r from-black via-gray-800 to-gray-900 p-8 min-h-screen relative">
+      <div className="absolute inset-0">{generateStars(100)}</div> {/* Adjust the number of stars as needed */}
       <div className="container mx-auto relative z-10">
         <header className="text-center mb-12">
           <motion.h1
-            className="text-6xl font-extrabold text-red-500 mb-4 drop-shadow-lg"
+            className="text-6xl font-extrabold text-red-400 mb-4 drop-shadow-lg"
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
@@ -193,18 +170,18 @@ const App = () => {
         </header>
 
         {loading ? (
-          <div className="text-center text-red-500 text-3xl">Loading...</div>
+          <div className="text-center text-red-400 text-3xl">Loading...</div>
         ) : (
           <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-black shadow-2xl rounded-3xl p-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               {/* DHT11 Sensor Data */}
               <motion.div
-                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-600 transition-shadow duration-300"
+                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-500 transition-shadow duration-300"
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1 }}
               >
-                <h2 className="text-4xl font-bold text-red-500 mb-6">🌡️ DHT11 Sensor Data</h2>
+                <h2 className="text-4xl font-bold text-red-400 mb-6">🌡️ DHT11 Sensor Data</h2>
                 <p className="text-lg text-gray-300 mb-4">
                   <strong>Humidity:</strong> {sensorData.humidity !== null ? `${sensorData.humidity.toFixed(2)} %` : 'N/A'}
                 </p>
@@ -217,25 +194,39 @@ const App = () => {
 
               {/* BMP280 Sensor Data */}
               <motion.div
-                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-600 transition-shadow duration-300"
+                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-500 transition-shadow duration-300"
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1 }}
               >
-                <h2 className="text-4xl font-bold text-red-500 mb-6">🌦️ BMP280 Sensor Data</h2>
+                <h2 className="text-4xl font-bold text-red-400 mb-6">📡 BMP280 Sensor Data</h2>
                 <p className="text-lg text-gray-300 mb-4">
+                  <strong>Temperature:</strong> {sensorData.temperature !== null ? `${sensorData.temperature.toFixed(2)} °C` : 'N/A'}
+                </p>
+                <Line ref={chartRefs.temperature} data={createChartData('BMP280 Temperature (°C)', dataHistory.temperature)} options={{ plugins: { tooltip: { enabled: true } }}} />
+                <p className="text-lg text-gray-300 mt-6 mb-4">
+                  <strong>Combined Temperature:</strong> {sensorData.combinedTemp !== null ? `${sensorData.combinedTemp.toFixed(2)} °C` : 'N/A'}
+                </p>
+                <Line ref={chartRefs.combinedTemp} data={createChartData('Combined Temperature (°C)', dataHistory.combinedTemp)} options={{ plugins: { tooltip: { enabled: true } }}} />
+                <p className="text-lg text-gray-300 mt-6 mb-4">
                   <strong>Pressure:</strong> {sensorData.pressure !== null ? `${sensorData.pressure.toFixed(2)} hPa` : 'N/A'}
                 </p>
                 <Line ref={chartRefs.pressure} data={createChartData('Pressure (hPa)', dataHistory.pressure)} options={{ plugins: { tooltip: { enabled: true } }}} />
                 <p className="text-lg text-gray-300 mt-6 mb-4">
-                  <strong>Altitude:</strong> {sensorData.altitude !== null ? `${sensorData.altitude.toFixed(2)} m` : 'N/A'}
+                  <strong>Altitude:</strong> {sensorData.altitude !== null ? `${sensorData.altitude.toFixed(2)} meters` : 'N/A'}
                 </p>
                 <Line ref={chartRefs.altitude} data={createChartData('Altitude (m)', dataHistory.altitude)} options={{ plugins: { tooltip: { enabled: true } }}} />
               </motion.div>
             </div>
 
-            <div className="bg-gray-900 p-8 rounded-2xl shadow-lg mt-12 border border-red-500 hover:shadow-red-600 transition-shadow duration-300">
-              <h2 className="text-4xl font-bold text-red-500 mb-6">📈 Accelerometer Data</h2>
+            {/* Accelerometer Data */}
+            <motion.div
+              className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-500 transition-shadow duration-300 mt-12"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+            >
+              <h2 className="text-4xl font-bold text-red-400 mb-6">📊 Accelerometer Data</h2>
               <p className="text-lg text-gray-300 mb-4">
                 <strong>X-Axis:</strong> {sensorData.accelX !== null ? `${sensorData.accelX.toFixed(2)} m/s²` : 'N/A'}
               </p>
@@ -248,47 +239,44 @@ const App = () => {
                 <strong>Z-Axis:</strong> {sensorData.accelZ !== null ? `${sensorData.accelZ.toFixed(2)} m/s²` : 'N/A'}
               </p>
               <Line ref={chartRefs.accelZ} data={createChartData('Accelerometer Z-Axis (m/s²)', dataHistory.accelZ)} options={{ plugins: { tooltip: { enabled: true } }}} />
-            </div>
+            </motion.div>
 
-            <div className="mt-12 flex justify-center gap-4">
+            {/* Export Buttons */}
+            <div className="mt-12 flex justify-between">
               <button
                 onClick={() => exportAllChartsAsPDF(Object.values(chartRefs))}
-                className="bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition-colors duration-300"
+                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors duration-300"
               >
-                Export Charts as PDF
+                Export All Charts as PDF
               </button>
               <CSVLink
                 data={[
-                  ['Timestamp', 'DHT11 Temperature (°C)', 'Humidity (%)', 'Pressure (hPa)', 'Altitude (m)', 'Accel X (m/s²)', 'Accel Y (m/s²)', 'Accel Z (m/s²)'],
+                  ['Time', 'DHT11 Humidity', 'DHT11 Temperature', 'BMP280 Temperature', 'Combined Temperature', 'Pressure', 'Altitude', 'Accel X', 'Accel Y', 'Accel Z'],
                   ...dataHistory.labels.map((label, index) => [
                     label,
-                    dataHistory.dhtTemp[index],
-                    dataHistory.humidity[index],
-                    dataHistory.pressure[index],
-                    dataHistory.altitude[index],
-                    dataHistory.accelX[index],
-                    dataHistory.accelY[index],
-                    dataHistory.accelZ[index],
+                    dataHistory.humidity[index] || '',
+                    dataHistory.dhtTemp[index] || '',
+                    dataHistory.temperature[index] || '',
+                    dataHistory.combinedTemp[index] || '',
+                    dataHistory.pressure[index] || '',
+                    dataHistory.altitude[index] || '',
+                    dataHistory.accelX[index] || '',
+                    dataHistory.accelY[index] || '',
+                    dataHistory.accelZ[index] || '',
                   ]),
                 ]}
-                filename="sensor-data.csv"
-                className="bg-blue-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-blue-600 transition-colors duration-300"
+                filename="sensor_data.csv"
+                className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-300"
               >
                 Export Data as CSV
               </CSVLink>
-              <button
-                onClick={resetData}
-                className="bg-gray-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-gray-700 transition-colors duration-300"
-              >
-                Reset Data
-              </button>
             </div>
           </div>
         )}
-        <div className="mt-12">
-          <ThreeDModel />
-        </div>
       </div>
+    <div>
+      <ThreeDModel/>
+    </div>
     </div>
   );
 };
