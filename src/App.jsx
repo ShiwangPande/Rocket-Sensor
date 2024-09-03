@@ -196,74 +196,86 @@ const App = () => {
           <div className="text-center text-red-500 text-3xl">Loading...</div>
         ) : (
           <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-black shadow-2xl rounded-3xl p-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              {/* DHT11 Sensor Data */}
-              <motion.div
-                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-600 transition-shadow duration-300"
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1 }}
-              >
-                <h2 className="text-4xl font-bold text-red-500 mb-6">🌡️ DHT11 Sensor Data</h2>
-                <p className="text-lg text-gray-300 mb-4">
-                  <strong>Humidity:</strong> {sensorData.humidity !== null ? `${sensorData.humidity.toFixed(2)} %` : 'N/A'}
-                </p>
-                <Line ref={chartRefs.humidity} data={createChartData('DHT11 Humidity (%)', dataHistory.humidity)} options={{ plugins: { tooltip: { enabled: true } }}} />
-                <p className="text-lg text-gray-300 mt-6 mb-4">
-                  <strong>Temperature:</strong> {sensorData.dhtTemp !== null ? `${sensorData.dhtTemp.toFixed(2)} °C` : 'N/A'}
-                </p>
-                <Line ref={chartRefs.dhtTemp} data={createChartData('DHT11 Temperature (°C)', dataHistory.dhtTemp)} options={{ plugins: { tooltip: { enabled: true } }}} />
-              </motion.div>
-
-              {/* BMP280 Sensor Data */}
-              <motion.div
-                className="bg-gray-900 p-8 rounded-2xl shadow-lg border border-red-500 hover:shadow-red-600 transition-shadow duration-300"
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 1 }}
-              >
-                <h2 className="text-4xl font-bold text-red-500 mb-6">🌦️ BMP280 Sensor Data</h2>
-                <p className="text-lg text-gray-300 mb-4">
-                  <strong>Pressure:</strong> {sensorData.pressure !== null ? `${sensorData.pressure.toFixed(2)} hPa` : 'N/A'}
-                </p>
-                <Line ref={chartRefs.pressure} data={createChartData('Pressure (hPa)', dataHistory.pressure)} options={{ plugins: { tooltip: { enabled: true } }}} />
-                <p className="text-lg text-gray-300 mt-6 mb-4">
-                  <strong>Altitude:</strong> {sensorData.altitude !== null ? `${sensorData.altitude.toFixed(2)} m` : 'N/A'}
-                </p>
-                <Line ref={chartRefs.altitude} data={createChartData('Altitude (m)', dataHistory.altitude)} options={{ plugins: { tooltip: { enabled: true } }}} />
-              </motion.div>
-            </div>
-
-            <div className="bg-gray-900 p-8 rounded-2xl shadow-lg mt-12 border border-red-500 hover:shadow-red-600 transition-shadow duration-300">
-              <h2 className="text-4xl font-bold text-red-500 mb-6">📈 Accelerometer Data</h2>
+            {/* Live Data Display */}
+            <div className="mb-12 p-6 bg-gray-900 rounded-2xl shadow-lg border border-red-500">
+              <h2 className="text-4xl font-bold text-red-500 mb-6">📊 Live Sensor Data</h2>
               <p className="text-lg text-gray-300 mb-4">
-                <strong>X-Axis:</strong> {sensorData.accelX !== null ? `${sensorData.accelX.toFixed(2)} m/s²` : 'N/A'}
+                <strong>DHT11 Temperature:</strong> {sensorData.dhtTemp !== null ? `${sensorData.dhtTemp.toFixed(2)} °C` : 'N/A'}
               </p>
-              <Line ref={chartRefs.accelX} data={createChartData('Accelerometer X-Axis (m/s²)', dataHistory.accelX)} options={{ plugins: { tooltip: { enabled: true } }}} />
-              <p className="text-lg text-gray-300 mt-6 mb-4">
-                <strong>Y-Axis:</strong> {sensorData.accelY !== null ? `${sensorData.accelY.toFixed(2)} m/s²` : 'N/A'}
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>DHT11 Humidity:</strong> {sensorData.humidity !== null ? `${sensorData.humidity.toFixed(2)} %` : 'N/A'}
               </p>
-              <Line ref={chartRefs.accelY} data={createChartData('Accelerometer Y-Axis (m/s²)', dataHistory.accelY)} options={{ plugins: { tooltip: { enabled: true } }}} />
-              <p className="text-lg text-gray-300 mt-6 mb-4">
-                <strong>Z-Axis:</strong> {sensorData.accelZ !== null ? `${sensorData.accelZ.toFixed(2)} m/s²` : 'N/A'}
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>BMP280 Temperature:</strong> {sensorData.temperature !== null ? `${sensorData.temperature.toFixed(2)} °C` : 'N/A'}
               </p>
-              <Line ref={chartRefs.accelZ} data={createChartData('Accelerometer Z-Axis (m/s²)', dataHistory.accelZ)} options={{ plugins: { tooltip: { enabled: true } }}} />
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Pressure:</strong> {sensorData.pressure !== null ? `${sensorData.pressure.toFixed(2)} hPa` : 'N/A'}
+              </p>
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Altitude:</strong> {sensorData.altitude !== null ? `${sensorData.altitude.toFixed(2)} m` : 'N/A'}
+              </p>
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel X:</strong> {sensorData.accelX !== null ? `${sensorData.accelX.toFixed(2)} m/s²` : 'N/A'}
+              </p>
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel Y:</strong> {sensorData.accelY !== null ? `${sensorData.accelY.toFixed(2)} m/s²` : 'N/A'}
+              </p>
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel Z:</strong> {sensorData.accelZ !== null ? `${sensorData.accelZ.toFixed(2)} m/s²` : 'N/A'}
+              </p>
             </div>
 
-            <div className="mt-12 flex justify-center gap-4">
+            {/* Charts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">DHT11 Temperature</h3>
+                <Line data={createChartData('DHT11 Temperature (°C)', dataHistory.dhtTemp)} ref={chartRefs.dhtTemp} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">DHT11 Humidity</h3>
+                <Line data={createChartData('DHT11 Humidity (%)', dataHistory.humidity)} ref={chartRefs.humidity} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">BMP280 Temperature</h3>
+                <Line data={createChartData('BMP280 Temperature (°C)', dataHistory.temperature)} ref={chartRefs.temperature} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Pressure</h3>
+                <Line data={createChartData('Pressure (hPa)', dataHistory.pressure)} ref={chartRefs.pressure} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Altitude</h3>
+                <Line data={createChartData('Altitude (m)', dataHistory.altitude)} ref={chartRefs.altitude} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration X</h3>
+                <Line data={createChartData('Accel X (m/s²)', dataHistory.accelX)} ref={chartRefs.accelX} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration Y</h3>
+                <Line data={createChartData('Accel Y (m/s²)', dataHistory.accelY)} ref={chartRefs.accelY} />
+              </div>
+              <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration Z</h3>
+                <Line data={createChartData('Accel Z (m/s²)', dataHistory.accelZ)} ref={chartRefs.accelZ} />
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4 mt-8">
               <button
                 onClick={() => exportAllChartsAsPDF(Object.values(chartRefs))}
-                className="bg-red-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-red-600 transition-colors duration-300"
+                className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition"
               >
-                Export Charts as PDF
+                Export All Charts as PDF
               </button>
               <CSVLink
                 data={[
-                  ['Timestamp', 'DHT11 Temperature (°C)', 'Humidity (%)', 'Pressure (hPa)', 'Altitude (m)', 'Accel X (m/s²)', 'Accel Y (m/s²)', 'Accel Z (m/s²)'],
+                  ['Time', 'DHT11 Temperature (°C)', 'DHT11 Humidity (%)', 'BMP280 Temperature (°C)', 'Pressure (hPa)', 'Altitude (m)', 'Accel X (m/s²)', 'Accel Y (m/s²)', 'Accel Z (m/s²)'],
                   ...dataHistory.labels.map((label, index) => [
                     label,
                     dataHistory.dhtTemp[index],
                     dataHistory.humidity[index],
+                    dataHistory.temperature[index],
                     dataHistory.pressure[index],
                     dataHistory.altitude[index],
                     dataHistory.accelX[index],
@@ -271,23 +283,21 @@ const App = () => {
                     dataHistory.accelZ[index],
                   ]),
                 ]}
-                filename="sensor-data.csv"
-                className="bg-blue-500 text-white px-6 py-3 rounded-full shadow-md hover:bg-blue-600 transition-colors duration-300"
+                filename="sensor_data.csv"
+                className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 transition"
               >
                 Export Data as CSV
               </CSVLink>
               <button
                 onClick={resetData}
-                className="bg-gray-600 text-white px-6 py-3 rounded-full shadow-md hover:bg-gray-700 transition-colors duration-300"
+                className="bg-yellow-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition"
               >
                 Reset Data
               </button>
             </div>
           </div>
         )}
-        <div className="mt-12">
-          <ThreeDModel />
-        </div>
+        <ThreeDModel />
       </div>
     </div>
   );
