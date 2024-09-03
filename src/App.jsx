@@ -81,48 +81,64 @@ const App = () => {
   // Establish WebSocket connection
   useEffect(() => {
     const ws = new WebSocket('wss://rocket-sensor-backend.onrender.com/data'); // Update with your WebSocket URL
-
-    ws.onopen = () => {
+  
+    const handleWebSocketOpen = () => {
       console.log('WebSocket connected');
+      setLoading(false);
     };
-
-    ws.onmessage = (event) => {
+  
+    const handleWebSocketMessage = (event) => {
       const data = JSON.parse(event.data);
       setSensorData(data);
-      const newDataHistory = {
-        dhtTemp: [...dataHistory.dhtTemp, data.dhtTemp],
-        humidity: [...dataHistory.humidity, data.humidity],
-        temperature: [...dataHistory.temperature, data.temperature],
-        pressure: [...dataHistory.pressure, data.pressure],
-        altitude: [...dataHistory.altitude, data.altitude],
-        accelX: [...dataHistory.accelX, data.accelX],
-        accelY: [...dataHistory.accelY, data.accelY],
-        accelZ: [...dataHistory.accelZ, data.accelZ],
-        labels: [...dataHistory.labels, new Date().toLocaleTimeString()],
-      };
-      setDataHistory(newDataHistory);
-      saveToLocalStorage(newDataHistory);
-
+  
+      // Update data history without affecting previous state directly
+      setDataHistory(prevDataHistory => {
+        const newDataHistory = {
+          dhtTemp: [...prevDataHistory.dhtTemp, data.dhtTemp],
+          humidity: [...prevDataHistory.humidity, data.humidity],
+          temperature: [...prevDataHistory.temperature, data.temperature],
+          pressure: [...prevDataHistory.pressure, data.pressure],
+          altitude: [...prevDataHistory.altitude, data.altitude],
+          accelX: [...prevDataHistory.accelX, data.accelX],
+          accelY: [...prevDataHistory.accelY, data.accelY],
+          accelZ: [...prevDataHistory.accelZ, data.accelZ],
+          labels: [...prevDataHistory.labels, new Date().toLocaleTimeString()],
+        };
+  
+        // Save updated data history to localStorage
+        saveToLocalStorage(newDataHistory);
+        return newDataHistory;
+      });
+  
       // Play sound and show notification if temperature exceeds threshold
       if (data.temperature > 37) { // Adjust threshold as needed
         playAlertSound(); // Play the alert sound
       }
-
-      setLoading(false);
     };
-
-    ws.onerror = (error) => {
+  
+    const handleWebSocketError = (error) => {
       console.error('WebSocket error:', error);
+      // Optionally handle reconnection here
     };
-
-    ws.onclose = () => {
+  
+    const handleWebSocketClose = () => {
       console.log('WebSocket closed');
+      // Optionally handle reconnection here
     };
-
+  
+    ws.addEventListener('open', handleWebSocketOpen);
+    ws.addEventListener('message', handleWebSocketMessage);
+    ws.addEventListener('error', handleWebSocketError);
+    ws.addEventListener('close', handleWebSocketClose);
+  
     return () => {
+      ws.removeEventListener('open', handleWebSocketOpen);
+      ws.removeEventListener('message', handleWebSocketMessage);
+      ws.removeEventListener('error', handleWebSocketError);
+      ws.removeEventListener('close', handleWebSocketClose);
       ws.close();
     };
-  }, [dataHistory]);
+  }, []);
 
   const createChartData = (label, data) => ({
     labels: dataHistory.labels,
