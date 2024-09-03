@@ -80,7 +80,7 @@ const App = () => {
 
   // Establish WebSocket connection
   useEffect(() => {
-    const ws = new WebSocket('ws://rocket-sensor-backend.onrender.com/data'); // Update with your WebSocket URL
+    const ws = new WebSocket('wss://rocket-sensor-backend.onrender.com/data'); // Update with your WebSocket URL
 
     ws.onopen = () => {
       console.log('WebSocket connected');
