@@ -42,7 +42,7 @@ const exportAllChartsAsPDF = async (chartRefs) => {
       await new Promise(resolve => {
         img.onload = () => {
           if (!isFirstPage) pdf.addPage();
-          pdf.addImage(img, 'PNG', 10, 10, 190, 270);
+          pdf.addImage(img, 'PNG', 10, 10, 180, 160); // Adjust dimensions as needed
           isFirstPage = false;
           resolve();
         };
@@ -80,7 +80,7 @@ const App = () => {
 
   // Establish WebSocket connection
   useEffect(() => {
-    const ws = new WebSocket('ws://rocket-sensor-backend.onrender.com/data'); // Update with your WebSocket URL
+    const ws = new WebSocket('ws://localhost:3000/data'); // Update with your WebSocket URL
 
     ws.onopen = () => {
       console.log('WebSocket connected');
@@ -175,96 +175,96 @@ const App = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-black via-gray-900 to-gray-800 p-4 min-h-screen relative overflow-hidden">
+    <div className="bg-gradient-to-r from-black via-gray-900 to-gray-800 p-8 min-h-screen relative overflow-hidden">
       <div className="absolute inset-0">{generateStars(200)}</div> {/* Increased number of stars */}
       <div className="container mx-auto relative z-10">
-        <header className="text-center mb-6 sm:mb-12">
+        <header className="text-center mb-12">
           <motion.h1
-            className="text-4xl sm:text-6xl font-extrabold text-red-500 mb-4 drop-shadow-lg"
+            className="text-6xl font-extrabold text-red-500 mb-4 drop-shadow-lg"
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
             🚀 Rocket Sensor Dashboard
           </motion.h1>
-          <p className="text-lg sm:text-xl text-gray-300 italic">
-            Real-time monitoring of your rocket&apos;s vitals
+          <p className="text-xl text-gray-300 italic">
+            Real-time monitoring of your rocket's vitals
           </p>
         </header>
 
         {loading ? (
-          <div className="text-center text-red-500 text-2xl sm:text-3xl">Loading...</div>
+          <div className="text-center text-red-500 text-3xl">Loading...</div>
         ) : (
-          <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-black shadow-2xl rounded-3xl p-4 sm:p-10">
+          <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-black shadow-2xl rounded-3xl p-10">
             {/* Live Data Display */}
-            <div className="mb-8 sm:mb-12 p-4 sm:p-6 bg-gray-900 rounded-2xl shadow-lg border border-red-500">
-              <h2 className="text-3xl sm:text-4xl font-bold text-red-500 mb-4">📊 Live Sensor Data</h2>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
+            <div className="mb-12 p-6 bg-gray-900 rounded-2xl shadow-lg border border-red-500">
+              <h2 className="text-4xl font-bold text-red-500 mb-6">📊 Live Sensor Data</h2>
+              <p className="text-lg text-gray-300 mb-4">
                 <strong>DHT11 Temperature:</strong> {sensorData.dhtTemp !== null ? `${sensorData.dhtTemp.toFixed(2)} °C` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
+              <p className="text-lg text-gray-300 mb-4">
                 <strong>DHT11 Humidity:</strong> {sensorData.humidity !== null ? `${sensorData.humidity.toFixed(2)} %` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
+              <p className="text-lg text-gray-300 mb-4">
                 <strong>BMP280 Temperature:</strong> {sensorData.temperature !== null ? `${sensorData.temperature.toFixed(2)} °C` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
+              <p className="text-lg text-gray-300 mb-4">
                 <strong>Pressure:</strong> {sensorData.pressure !== null ? `${sensorData.pressure.toFixed(2)} hPa` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
+              <p className="text-lg text-gray-300 mb-4">
                 <strong>Altitude:</strong> {sensorData.altitude !== null ? `${sensorData.altitude.toFixed(2)} m` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
-                <strong>Acceleration X:</strong> {sensorData.accelX !== null ? `${sensorData.accelX.toFixed(2)} m/s²` : 'N/A'}
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel X:</strong> {sensorData.accelX !== null ? `${sensorData.accelX.toFixed(2)} m/s²` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
-                <strong>Acceleration Y:</strong> {sensorData.accelY !== null ? `${sensorData.accelY.toFixed(2)} m/s²` : 'N/A'}
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel Y:</strong> {sensorData.accelY !== null ? `${sensorData.accelY.toFixed(2)} m/s²` : 'N/A'}
               </p>
-              <p className="text-base sm:text-lg text-gray-300 mb-2">
-                <strong>Acceleration Z:</strong> {sensorData.accelZ !== null ? `${sensorData.accelZ.toFixed(2)} m/s²` : 'N/A'}
+              <p className="text-lg text-gray-300 mb-4">
+                <strong>Accel Z:</strong> {sensorData.accelZ !== null ? `${sensorData.accelZ.toFixed(2)} m/s²` : 'N/A'}
               </p>
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">DHT11 Temperature</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">DHT11 Temperature</h3>
                 <Line data={createChartData('DHT11 Temperature (°C)', dataHistory.dhtTemp)} ref={chartRefs.dhtTemp} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">DHT11 Humidity</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">DHT11 Humidity</h3>
                 <Line data={createChartData('DHT11 Humidity (%)', dataHistory.humidity)} ref={chartRefs.humidity} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">BMP280 Temperature</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">BMP280 Temperature</h3>
                 <Line data={createChartData('BMP280 Temperature (°C)', dataHistory.temperature)} ref={chartRefs.temperature} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">Pressure</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Pressure</h3>
                 <Line data={createChartData('Pressure (hPa)', dataHistory.pressure)} ref={chartRefs.pressure} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">Altitude</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Altitude</h3>
                 <Line data={createChartData('Altitude (m)', dataHistory.altitude)} ref={chartRefs.altitude} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">Acceleration X</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration X</h3>
                 <Line data={createChartData('Accel X (m/s²)', dataHistory.accelX)} ref={chartRefs.accelX} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">Acceleration Y</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration Y</h3>
                 <Line data={createChartData('Accel Y (m/s²)', dataHistory.accelY)} ref={chartRefs.accelY} />
               </div>
               <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-red-500">
-                <h3 className="text-2xl sm:text-3xl font-semibold text-red-500 mb-4">Acceleration Z</h3>
+                <h3 className="text-3xl font-semibold text-red-500 mb-4">Acceleration Z</h3>
                 <Line data={createChartData('Accel Z (m/s²)', dataHistory.accelZ)} ref={chartRefs.accelZ} />
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+            <div className="flex justify-center gap-4 mt-8">
               <button
                 onClick={() => exportAllChartsAsPDF(Object.values(chartRefs))}
-                className="bg-red-500 text-white text-center py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition"
+                className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition"
               >
                 Export All Charts as PDF
               </button>
@@ -284,13 +284,13 @@ const App = () => {
                   ]),
                 ]}
                 filename="sensor_data.csv"
-                className="bg-green-500 text-center text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 transition"
+                className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-600 transition"
               >
                 Export Data as CSV
               </CSVLink>
               <button
                 onClick={resetData}
-                className="bg-yellow-500 text-center text-white py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition"
+                className="bg-yellow-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition"
               >
                 Reset Data
               </button>

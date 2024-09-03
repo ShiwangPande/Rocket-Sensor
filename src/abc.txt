@@ -282,3 +282,15 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
+
+
+
+
+#define BLYNK_TEMPLATE_ID "TMPL3qbEV6lCL"
+#define BLYNK_TEMPLATE_NAME "Quickstart Template"
+#define BLYNK_AUTH_TOKEN "5ehDlEK8Ej4jHxKrI8JQb_t4niHPTa2W"
